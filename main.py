@@ -1,7 +1,6 @@
-import re
 from typing import Sequence
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Request
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import PlainTextResponse
 
@@ -9,10 +8,10 @@ from db import crud
 from db.crud import SessionDep
 from models.database import Person
 from models.request import ModelRequestQuery
-from models.response import ModelResponsePersonAggregated, ModelResponsePersonAggregatedMasking
+from models.response import ModelResponsePersonAggregatedMasking
 
-from lib.aggregation import clean_str_set, clean_int_set, clean_id_set
 from lib.masking import mask_list
+from security import RATE_LIMIT, get_client_ip, resolve_allowed_origins, verify_api_key
 
 app = FastAPI(
     root_path="/leak-check",
@@ -33,9 +32,9 @@ app = FastAPI(
 # 允许跨域
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=resolve_allowed_origins(),
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type", "X-API-Key"],
 )
 
 
@@ -67,7 +66,7 @@ async def root():
              }
          }
          )
-async def get_counts(session: SessionDep):
+async def get_counts(session: SessionDep, _=Depends(verify_api_key)):
     counts = crud.read_counts(session=session)
     return counts
 
@@ -77,7 +76,8 @@ async def get_counts(session: SessionDep):
     summary="查询 个人信息“泄漏” 记录 - 脱敏",
     response_model=ModelResponsePersonAggregatedMasking,
 )
-def get_person_by_dig(body: ModelRequestQuery, session: SessionDep):
+def get_person_by_dig(body: ModelRequestQuery, request: Request, session: SessionDep, _=Depends(verify_api_key)):
+    RATE_LIMIT.check(get_client_ip(request))
     persons: Sequence[Person] = []
 
     match body.type:

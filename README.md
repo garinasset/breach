@@ -13,7 +13,32 @@
 ### 🚀 Develop
 使用我们的安装脚本, 快速构建开发环境.
 ```bash
-curl -LsSf https://raw.githubusercontent.com/garinasset/leak-check/refs/heads/main/install.sh | bash
+git clone https://github.com/pa4uslf/leak-check.git
+cd leak-check
+./install.sh
+```
+
+### 🔐 安全配置
+
+服务启动前至少配置以下环境变量:
+
+```bash
+export LEAK_CHECK_API_KEYS="replace-with-long-random-token"
+export LEAK_CHECK_ALLOWED_ORIGINS="https://your-console.example.com"
+```
+
+- `LEAK_CHECK_API_KEYS`: 逗号分隔的 API Key 列表；`/` 与 `/dig/masking` 现在都必须携带。
+- `LEAK_CHECK_ALLOWED_ORIGINS`: 允许跨域的前端来源；未配置时仅允许本地开发源。
+- `LEAK_CHECK_RATE_LIMIT`: 可选，默认每个 IP 每 60 秒 30 次查询。
+- `LEAK_CHECK_RATE_WINDOW_SECONDS`: 可选，默认 60 秒。
+
+调用示例:
+
+```bash
+curl -X POST http://127.0.0.1:3001/leak-check/dig/masking \
+  -H "Authorization: Bearer replace-with-long-random-token" \
+  -H "Content-Type: application/json" \
+  -d '{"q":"13800138000"}'
 ```
 
 ### 📊 Database

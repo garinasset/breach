@@ -9,6 +9,10 @@ WorkingDirectory=/home/debian/leak-check
 
 # 环境变量
 Environment="PATH=/home/debian/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Environment="LEAK_CHECK_API_KEYS=replace-with-long-random-token"
+Environment="LEAK_CHECK_ALLOWED_ORIGINS=https://your-console.example.com"
+Environment="LEAK_CHECK_RATE_LIMIT=30"
+Environment="LEAK_CHECK_RATE_WINDOW_SECONDS=60"
 
 # 启动命令
 ExecStart=/home/debian/.local/bin/uv run uvicorn main:app --host 0.0.0.0 --port 3001  --workers 4
