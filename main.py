@@ -52,7 +52,7 @@ app.add_middleware(
          }
          )
 async def root():
-    return f"Hello leak-check!\n"
+    return f"Hello leak-check?!\n"
 
 
 @app.get("/", summary="响应 数据库 记录",
