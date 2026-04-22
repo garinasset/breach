@@ -52,6 +52,7 @@ app.add_middleware(
          }
          )
 async def root():
+    stra="leak-check\n"
     return f"leak-check\n"
 
 
